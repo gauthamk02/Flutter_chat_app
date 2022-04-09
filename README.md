@@ -1,16 +1,11 @@
-# flutter_chat_app
+# Flutter_chat_app
 
-A new Flutter project.
+A Chat App made using Flutter and Firebase backend. Upon opening the users can enter their display name and and channel they would like to go to. 
 
-## Getting Started
+## Setting Up
 
-This project is a starting point for a Flutter application.
+- Clone the repo to your local device.
+- Create a Firebase Firestore database and store the `google-services.json` file obtained in `android/app` directory.
+- Connect your device, run the app and you are good to go.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+##### (Note) Current version of the App only runs in Android devices. 
