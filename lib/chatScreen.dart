@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key, required this.channel, required this.name})
@@ -23,18 +22,22 @@ class _ChatScreenState extends State<ChatScreen> {
         .add(ChatMessage(
           text: msg,
           author: widget.name,
+          timestamp: Timestamp.now(),
         ).toMap());
     _controller.clear();
   }
 
   Widget _buildListItem(BuildContext context, DocumentSnapshot document) {
-    return ChatMessage(text: document['message'], author: document['author']);
+    return ChatMessage.fromSnapshot(
+        text: document['message'],
+        author: document['author'],
+        timestamp: document['timestamp']);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Chat Screen")),
+      appBar: AppBar(title: Text(widget.channel)),
       body: Center(
         child: Column(children: [
           Flexible(
@@ -60,7 +63,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Padding(
             padding: EdgeInsets.all(8.0),
             child: TextField(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: 'Enter your Message',
               ),
@@ -75,26 +78,50 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 class ChatMessage extends StatelessWidget {
-  const ChatMessage({
+  ChatMessage({
     required this.text,
     required this.author,
+    required this.timestamp,
     Key? key,
   }) : super(key: key);
+
+  ChatMessage.fromSnapshot({
+    required this.text,
+    required this.author,
+    required this.timestamp,
+    Key? key,
+  }) : super(key: key);
+
   final String text;
   final String author;
+  final Timestamp timestamp;
 
   Map<String, dynamic> toMap() {
     return {
       "author": author,
       "message": text,
-      "timestamp": Timestamp.now(),
+      "timestamp": timestamp,
     };
+  }
+
+  Widget _getTimestampText() {
+    String txt = timestamp.toDate().hour.toString() +
+        ':' +
+        timestamp.toDate().minute.toString() +
+        ':' +
+        timestamp.toDate().second.toString();
+    return Text(txt);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10.0),
+      padding: const EdgeInsets.all(4.0),
+      decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).primaryColorDark),
+          borderRadius: BorderRadius.circular(10.0),
+          color: Theme.of(context).primaryColorLight),
+      margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -106,7 +133,13 @@ class ChatMessage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(author, style: Theme.of(context).textTheme.headline4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(author, style: Theme.of(context).textTheme.headline6),
+                    _getTimestampText()
+                  ],
+                ),
                 Container(
                   margin: const EdgeInsets.only(top: 5.0),
                   child: Text(text),
