@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_chat_app/chatScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -13,9 +14,18 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _usernamecontroller = TextEditingController();
   final _channelcontroller = TextEditingController();
+  late final prefs;
+  @override
+  void initState() {
+    super.initState();
+    loadPrefs();
+  }
 
-  final String channel = "abc";
-  final String name = "Gautham";
+  void loadPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    _usernamecontroller.text = prefs.getString('lastusername') ?? '';
+    _channelcontroller.text = prefs.getString('lastchannel') ?? '';
+  }
 
   void _submit() async {
     bool? exist;
@@ -32,6 +42,9 @@ class _HomeScreenState extends State<HomeScreen> {
           .doc(_channelcontroller.text)
           .set({"created": Timestamp.now()});
     }
+
+    prefs.setString('lastusername', _usernamecontroller.text);
+    prefs.setString('lastchannel', _channelcontroller.text);
 
     Navigator.push(
         context,
