@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_chat_app/homeScreen.dart';
-import 'chatScreen.dart';
+import 'package:flutter_chat_app/home_screen.dart';
+import 'chat_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
