@@ -133,10 +133,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             timestamp: document['timestamp']));
                         return _buildListItem(context, index);
                       } else if (document['type'] == 'image') {
-                        _messages.add(ChatMessage(
+                        _messages.add(ChatLoading(
                             id: document.id,
-                            text: 'Loading...',
                             author: document['author'],
+                            type: 'text',
                             timestamp: document['timestamp']));
                         int ind = _messages.length - 1;
                         return FutureBuilder<Uint8List?>(

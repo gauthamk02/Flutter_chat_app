@@ -88,7 +88,10 @@ class ChatMessage extends ChatItem {
 
   @override
   Widget buildItem() {
-    return Text(text);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: Text(text),
+    );
   }
 
   @override
@@ -107,6 +110,30 @@ class ChatMessage extends ChatItem {
       "timestamp": timestamp,
       "type": type,
     };
+  }
+}
+
+class ChatLoading extends ChatItem {
+  ChatLoading(
+      {Key? key,
+      required String author,
+      required Timestamp timestamp,
+      required String id,
+      required String type})
+      : super(
+            key: key, author: author, timestamp: timestamp, id: id, type: type);
+
+  @override
+  Widget buildItem() {
+    return const Text(
+      "Loading...",
+      style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+    );
+  }
+
+  @override
+  String getContentText() {
+    return "Loading...";
   }
 }
 
