@@ -62,10 +62,18 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void _messageLongPress(BuildContext context, int i) {
+  void _messageLongPress(BuildContext context, Offset _tapDownPosition, int i) {
+    final RenderBox overlay =
+        Overlay.of(context)!.context.findRenderObject() as RenderBox;
+
     showMenu(
         context: context,
-        position: const RelativeRect.fromLTRB(0, 0, 100, 100),
+        position: RelativeRect.fromLTRB(
+          _tapDownPosition.dx,
+          _tapDownPosition.dy,
+          overlay.size.width - _tapDownPosition.dx,
+          overlay.size.height - _tapDownPosition.dy,
+        ),
         items: [
           PopupMenuItem(
             child: const Text("Copy"),
@@ -95,10 +103,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildListItem(BuildContext context, int i) {
-    var _tapDownPos;
+    late Offset _tapDownPos;
     return GestureDetector(
         onTapDown: (details) => _tapDownPos = details.globalPosition,
-        onLongPress: () => _messageLongPress(context, i),
+        onLongPress: () => _messageLongPress(context, _tapDownPos, i),
         child: _messages[i]);
   }
 
@@ -107,102 +115,113 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.channel)),
       body: Center(
-        child: Column(children: [
-          Flexible(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('channels')
-                  .doc(widget.channel)
-                  .collection('messages')
-                  .orderBy('timestamp', descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const CircularProgressIndicator();
-                } else {
-                  _messages = [];
-                  return ListView.builder(
-                    reverse: true,
-                    itemBuilder: (context, index) {
-                      DocumentSnapshot document = snapshot.data!.docs[index];
-                      if (document['type'] == 'text') {
-                        _messages.add(ChatMessage(
-                            id: document.id,
-                            text: document['message'],
-                            author: document['author'],
-                            timestamp: document['timestamp']));
-                        return _buildListItem(context, index);
-                      } else if (document['type'] == 'image') {
-                        _messages.add(ChatLoading(
-                            id: document.id,
-                            author: document['author'],
-                            type: 'text',
-                            timestamp: document['timestamp']));
-                        int ind = _messages.length - 1;
-                        return FutureBuilder<Uint8List?>(
-                            future: FirebaseStorage.instance
-                                .ref()
-                                .child('images/' + document['filename'])
-                                .getData(),
-                            builder: ((context, snapshot) {
-                              if (snapshot.hasData) {
-                                _messages[ind] = ChatImage(
-                                    author: document['author'],
-                                    timestamp: document['timestamp'],
-                                    id: document.id,
-                                    imageName: document['filename'],
-                                    imgData: snapshot.data!);
+        child: Container(
+          color: Color.fromARGB(255, 230, 243, 110),
+          child: Column(children: [
+            Flexible(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('channels')
+                    .doc(widget.channel)
+                    .collection('messages')
+                    .orderBy('timestamp', descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const CircularProgressIndicator();
+                  } else {
+                    _messages = [];
+                    return ListView.builder(
+                      reverse: true,
+                      itemBuilder: (context, index) {
+                        DocumentSnapshot document = snapshot.data!.docs[index];
+                        if (document['type'] == 'text') {
+                          _messages.add(ChatMessage(
+                              id: document.id,
+                              text: document['message'],
+                              author: document['author'],
+                              timestamp: document['timestamp']));
+                          return _buildListItem(context, index);
+                        } else if (document['type'] == 'image') {
+                          _messages.add(ChatLoading(
+                              id: document.id,
+                              author: document['author'],
+                              type: 'text',
+                              timestamp: document['timestamp']));
+                          int ind = _messages.length - 1;
+                          return FutureBuilder<Uint8List?>(
+                              future: FirebaseStorage.instance
+                                  .ref()
+                                  .child('images/' + document['filename'])
+                                  .getData(),
+                              builder: ((context, snapshot) {
+                                if (snapshot.hasData) {
+                                  _messages[ind] = ChatImage(
+                                      author: document['author'],
+                                      timestamp: document['timestamp'],
+                                      id: document.id,
+                                      imageName: document['filename'],
+                                      imgData: snapshot.data!);
+                                  return _buildListItem(context, index);
+                                }
                                 return _buildListItem(context, index);
-                              }
-                              return _buildListItem(context, index);
-                            }));
-                      } else {
-                        _messages.add(ChatMessage(
-                            text: "Error Loading Message",
-                            author: "System",
-                            timestamp: Timestamp.now(),
-                            id: "-1"));
-                        return _buildListItem(context, index);
-                      }
-                    },
-                    //itemCount: _messages.length,
-                    itemCount: snapshot.data!.docs.length,
-                  );
-                }
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Enter your Message',
+                              }));
+                        } else {
+                          _messages.add(ChatMessage(
+                              text: "Error Loading Message",
+                              author: "System",
+                              timestamp: Timestamp.now(),
+                              id: "-1"));
+                          return _buildListItem(context, index);
+                        }
+                      },
+                      //itemCount: _messages.length,
+                      itemCount: snapshot.data!.docs.length,
+                    );
+                  }
+                },
               ),
-              controller: _controller,
-              onSubmitted: _sendMessage,
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(3.0),
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                FilePickerResult? result = await FilePicker.platform.pickFiles(
-                  type: FileType.custom,
-                  allowedExtensions: ['jpg', 'jpeg', 'png'],
-                );
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 0.0, horizontal: 3.0),
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  FilePickerResult? result =
+                      await FilePicker.platform.pickFiles(
+                    type: FileType.custom,
+                    allowedExtensions: ['jpg', 'jpeg', 'png'],
+                  );
 
-                if (result != null) {
-                  _sendImage(result);
-                } else {
-                  // User canceled the picker
-                }
-              },
-              icon: const Icon(Icons.file_open),
-              label: const Text("Select File"),
+                  if (result != null) {
+                    _sendImage(result);
+                  } else {
+                    // User canceled the picker
+                  }
+                },
+                icon: const Icon(Icons.image),
+                label: const Text("Image"),
+              ),
             ),
-          )
-        ]),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                decoration: const InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black, width: 2.0)),
+                  border: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black)),
+                  labelText: 'Message',
+                  hintText: 'Enter the Message',
+                  hintStyle: TextStyle(color: Colors.black),
+                  labelStyle: TextStyle(color: Colors.black),
+                ),
+                controller: _controller,
+                onSubmitted: _sendMessage,
+              ),
+            )
+          ]),
+        ),
       ),
     );
   }

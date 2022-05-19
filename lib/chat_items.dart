@@ -32,39 +32,49 @@ abstract class ChatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: Container(
-        padding: const EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-            border: Border.all(color: Theme.of(context).primaryColorDark),
-            borderRadius: BorderRadius.circular(10.0),
-            color: Theme.of(context).primaryColorLight),
-        margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(child: Text(author[0])),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(author,
-                          style: Theme.of(context).textTheme.headline6),
-                      _getTimestampText()
-                    ],
-                  ),
-                  buildItem(),
-                ],
+    return Container(
+      padding: const EdgeInsets.all(4.0),
+      decoration: BoxDecoration(
+          border:
+              Border.all(color: Theme.of(context).primaryColorDark, width: 2.0),
+          borderRadius: BorderRadius.circular(10.0),
+          color: Theme.of(context).primaryColorLight),
+      margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(right: 16.0),
+            decoration: BoxDecoration(
+                border: Border.all(width: 2),
+                borderRadius: BorderRadius.circular(28)),
+            child: CircleAvatar(
+              child: Text(
+                author[0].toUpperCase(),
+                style: Theme.of(context)
+                    .textTheme
+                    .headline3, //TextStyle(fontWeight: FontWeight.bold),
               ),
+              backgroundColor: Colors.yellow,
+              radius: 25,
             ),
-          ],
-        ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(author, style: Theme.of(context).textTheme.headline6),
+                    _getTimestampText()
+                  ],
+                ),
+                buildItem(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

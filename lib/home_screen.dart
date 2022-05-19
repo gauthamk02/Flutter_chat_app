@@ -57,36 +57,56 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Flutter Chat App')),
-      body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'User Name',
-              hintText: 'Enter the name that yous like to display',
-            ),
-            controller: _usernamecontroller,
+      //appBar: AppBar(title: Text('Flutter Chat App')),
+      backgroundColor: Theme.of(context).primaryColor,
+      body: Center(
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Text(
+            "Flutter Chat App",
+            style: Theme.of(context).textTheme.headline1,
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Channel',
-              hintText: 'Enter the channel youd like to join',
+          SizedBox(height: 80),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: const InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black, width: 2.0)),
+                border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black)),
+                labelText: 'User Name',
+                hintText: 'Enter the display name',
+                hintStyle: TextStyle(color: Colors.black),
+                labelStyle: TextStyle(color: Colors.black),
+              ),
+              controller: _usernamecontroller,
             ),
-            controller: _channelcontroller,
           ),
-        ),
-        ButtonBar(
-          children: [
-            ElevatedButton(onPressed: _submit, child: const Text("Join"))
-          ],
-        )
-      ]),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: const InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black, width: 2.0)),
+                border: OutlineInputBorder(),
+                labelText: 'Channel',
+                hintText: 'Enter the channel to join',
+                hintStyle: TextStyle(color: Colors.black),
+                labelStyle: TextStyle(color: Colors.black),
+              ),
+              controller: _channelcontroller,
+            ),
+          ),
+          ButtonBar(
+            children: [
+              ElevatedButton(
+                onPressed: _submit,
+                child: const Text("Join"),
+              )
+            ],
+          )
+        ]),
+      ),
     );
   }
 }
